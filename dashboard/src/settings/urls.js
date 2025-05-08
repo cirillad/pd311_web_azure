@@ -1,0 +1,1 @@
+export const defaultAvatarUrl = "https://www.easy-profile.com/support.html?controller=attachment&task=download&tmpl=component&id=2883";

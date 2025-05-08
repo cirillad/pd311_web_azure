@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres
+    container_name: "db"
+    ports:
+      - "5432:5432"
+    environment:
+      - "POSTGRES_PASSWORD=qwerty"
+      - "POSTGRES_DB=pd311_web_api"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - db_pd311:/var/lib/postgresql/data
+    networks:
+      - api_nt
+
+  api:
+    build: pd311_web_api/
+    image: potapchuk22/pd311_api
+    container_name: "api"
+    ports:
+      - "7223:8080"
+    environment:
+      - ConnectionStrings__NpgsqlLocal=User ID=postgres;Password=qwerty;Host=db;Port=5432;Database=pd311_web_api;
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+       - api_files:/app/wwwroot
+    networks:
+      - api_nt
+
+  front:
+    build: 
+      context: dashboard/
+      args: 
+        REACT_APP_API_URL: http://localhost:7223/api/
+        REACT_APP_IMAGES_URL: http://localhost:7223/images/
+    image: potapchuk22/pd311_react
+    container_name: "front"
+    ports:
+      - "80:3000"
+    depends_on:
+      - "api"
+
+networks:
+  api_nt:
+
+volumes:
+  api_files:
+    name: "pd311_api"
+  db_pd311:
+    driver: local
+    name: "pd311_db"
