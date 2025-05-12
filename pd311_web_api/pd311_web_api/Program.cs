@@ -50,8 +50,16 @@ builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 // redis
 builder.Services.AddScoped(cfg =>
 {
-    IConnectionMultiplexer multiplexer = ConnectionMultiplexer.Connect($"localhost");
-    return multiplexer.GetDatabase();
+    try
+    {
+        IConnectionMultiplexer multiplexer = ConnectionMultiplexer.Connect("localhost,abortConnect=false");
+        return multiplexer.GetDatabase();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Redis connection error: {ex.Message}");
+        return null!;
+    }
 });
 
 // Add repositories
