@@ -36,8 +36,8 @@ services:
     build: 
       context: dashboard/
       args: 
-        REACT_APP_API_URL: http://localhost:7223/api/
-        REACT_APP_IMAGES_URL: http://localhost:7223/images/
+        REACT_APP_API_URL: http://4.227.182.23:7223/api/
+        REACT_APP_IMAGES_URL: http://4.227.182.23:7223/images/
     image: potapchuk22/pd311_react
     container_name: "front"
     ports:
