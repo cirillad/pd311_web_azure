@@ -18,7 +18,6 @@ services:
       - api_nt
 
   api:
-    build: pd311_web_api/
     image: potapchuk22/pd311_api
     container_name: "api"
     ports:
