@@ -1,22 +1,32 @@
-# Learn about building .NET container images:
-# https://github.com/dotnet/dotnet-docker/blob/main/samples/README.md
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM node:18-alpine
+
+# Створюємо робочу директорію
 WORKDIR /app
 
-# copy csproj and restore as distinct layers
-COPY ["pd311_web_api/pd311_web_api.csproj", "pd311_web_api/"]
-COPY ["pd311_web_api.BLL/pd311_web_api.BLL.csproj", "pd311_web_api.BLL/"]
-COPY ["pd311_web_api.DAL/pd311_web_api.DAL.csproj", "pd311_web_api.DAL/"]
-RUN dotnet restore "pd311_web_api/pd311_web_api.csproj"
+# Копіюємо package.json
+COPY package*.json ./
 
-# copy everything else and build app
+# Встановлюємо модулі
+RUN npm install --force
+
+# копіюємо весь вміст в контейнер
 COPY . .
-WORKDIR /app/pd311_web_api
-RUN dotnet publish -o /app/out
 
+# Отримання аргументів
+ARG REACT_APP_API_URL
+ARG REACT_APP_IMAGES_URL
 
-# final stage/image
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
-WORKDIR /app
-COPY --from=build /app/out .
-ENTRYPOINT ["dotnet", "pd311_web_api.dll"]
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+ENV REACT_APP_IMAGES_URL=$REACT_APP_IMAGES_URL
+
+# будуємо проект
+RUN npm run build
+
+# Встановлюємо serve
+RUN npm install -g serve
+
+# встановлюємо порт 3000
+EXPOSE 3000
+
+# запуск
+CMD ["serve", "-s", "build", "-l", "3000"]
