@@ -99,11 +99,15 @@ builder.Services
     .AddDefaultTokenProviders();
 
 // CORS
+
+string? allowedOrigins = builder.Configuration["Cors:AllowedOrigins"];
+Console.WriteLine("/t/t/t/t" + allowedOrigins);
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("localhost", builder =>
+    options.AddPolicy("DefaultCors", builder =>
     {
-        builder.WithOrigins("http://localhost")
+        builder.WithOrigins(allowedOrigins)
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials();
@@ -153,7 +157,7 @@ app.UseMiddleware<MiddlewareLogger>();
 
 app.UseHttpsRedirection();
 
-app.UseCors("localhost");
+app.UseCors("DefaultCors");
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
