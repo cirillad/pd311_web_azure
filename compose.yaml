@@ -24,6 +24,7 @@ services:
       - "7223:8080"
     environment:
       - ConnectionStrings__NpgsqlLocal=User ID=postgres;Password=qwerty;Host=db;Port=5432;Database=pd311_web_api;
+      - "Cors__AllowedOrigins=http://4.227.182.23/"
     depends_on:
       db:
         condition: service_healthy
