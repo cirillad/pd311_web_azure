@@ -1,33 +1,32 @@
 services:
-  db:
-    image: postgres
-    container_name: "db"
-    ports:
-      - "5432:5432"
-    environment:
-      - "POSTGRES_PASSWORD=qwerty"
-      - "POSTGRES_DB=pd311_web_api"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-    volumes:
-      - db_pd311:/var/lib/postgresql/data
-    networks:
-      - api_nt
+  # db:
+  #   image: postgres
+  #   container_name: "db"
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     - "POSTGRES_PASSWORD=qwerty"
+  #     - "POSTGRES_DB=pd311_web_api"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
+  #     interval: 5s
+  #     timeout: 3s
+  #     retries: 5
+  #   volumes:
+  #     - db_pd311:/var/lib/postgresql/data
+  #   networks:
+  #     - api_nt
 
   api:
-    image: potapchuk22/pd311_api
+    image: cirillad/pd311_api_azure
     container_name: "api"
     ports:
       - "7223:8080"
     environment:
-      - ConnectionStrings__NpgsqlLocal=User ID=postgres;Password=qwerty;Host=db;Port=5432;Database=pd311_web_api;
-      - "Cors__AllowedOrigins=http://4.227.182.23/"
-    depends_on:
-      db:
-        condition: service_healthy
+      - ConnectionStrings__NpgsqlLocal=Server=ciri.postgres.database.azure.com;Database=postgres;Port=5432;User Id=ciri;Password=Qezcwxads123;Ssl Mode=Require;
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
     volumes:
        - api_files:/app/wwwroot
     networks:

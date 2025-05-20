@@ -47,21 +47,6 @@ var jobs = new (Type type, string schedule)[]
 builder.Services.AddJobs(jobs);
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
-// redis
-builder.Services.AddScoped(cfg =>
-{
-    try
-    {
-        IConnectionMultiplexer multiplexer = ConnectionMultiplexer.Connect("localhost,abortConnect=false");
-        return multiplexer.GetDatabase();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Redis connection error: {ex.Message}");
-        return null!;
-    }
-});
-
 // Add repositories
 builder.Services.AddScoped<IManufactureRepository, ManufactureRepository>();
 builder.Services.AddScoped<ICarRepository, CarRepository>();
@@ -100,14 +85,20 @@ builder.Services
 
 // CORS
 
-string? allowedOrigins = builder.Configuration["Cors:AllowedOrigins"];
-Console.WriteLine("/t/t/t/t" + allowedOrigins);
+const string corsPolicyName = "CorsPolicy";
+var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+
+if(origins == null || origins.Length == 0)
+{
+    origins = ["http://localhost"]; 
+}
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("DefaultCors", builder =>
+    options.AddPolicy(corsPolicyName, builder =>
     {
-        builder.WithOrigins(allowedOrigins)
+        builder
+        .WithOrigins(origins)
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials();
@@ -157,7 +148,7 @@ app.UseMiddleware<MiddlewareLogger>();
 
 app.UseHttpsRedirection();
 
-app.UseCors("DefaultCors");
+app.UseCors(corsPolicyName);
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
